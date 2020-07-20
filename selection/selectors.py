@@ -22,10 +22,9 @@ class RouletteWheelSelection(AbstractSelection):
             fitness_sum += individual.get("fitness")
 
         for i in range(iterations):
-            pair = Pair()
-            pair.p1 = self.__spin_the_wheel(population, fitness_sum)
-            pair.p2 = self.__spin_the_wheel(population, fitness_sum)
-            parents.append(pair)
+            parent1 = self.__spin_the_wheel(population, fitness_sum)
+            parent2 = self.__spin_the_wheel(population, fitness_sum)
+            parents.append(Pair(parent1, parent2))
 
         return parents
 
@@ -52,5 +51,6 @@ class RankSelection(AbstractSelection):
 
 
 class Pair(object):
-    p1: None
-    p2: None
+    def __init__(self, parent1, parent2):
+        self.p1 = parent1
+        self.p2 = parent2
