@@ -19,7 +19,7 @@ def apply_selection(population):
 
 def listen_for_selection():
     message_handler = get_message_handler()
-    message_handler.receive_message(action_on_receive=apply_selection)
+    message_handler.receive_messages()
 
 
 def get_message_handler():

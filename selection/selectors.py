@@ -28,7 +28,8 @@ class RouletteWheelSelection(AbstractSelection):
 
         return parents
 
-    def __spin_the_wheel(self, population, fitness_sum):
+    @staticmethod
+    def __spin_the_wheel(population, fitness_sum):
         partial_fitness_sum = 0
         wheel_spin = random.randint(0, fitness_sum)  # select individual at random
         selected = population[0]  # select first individual if wheel_spin=0
