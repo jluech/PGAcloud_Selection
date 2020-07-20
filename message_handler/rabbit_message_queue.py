@@ -1,3 +1,4 @@
+import json
 import logging
 
 import pika
@@ -7,43 +8,82 @@ from selection.__main__ import apply_selection
 
 QUEUE_NAME = "selection"
 
+# Establish connection to rabbitMQ.
+connection = pika.BlockingConnection(pika.ConnectionParameters(
+    host="rabbitMQ",
+    credentials=pika.PlainCredentials("rabbit", "MQ")
+))
 
-def __selection_request_callback(ch, method, properties, body):
-    logging.debug("{queue_}: Received selection request for population: {pop_}".format(
+
+def receive_selection_callback(ch, method, properties, body):
+    population = body.get("payload")
+    logging.debug("rMQ:{queue_}: Received selection request for population: {pop_}".format(
         queue_=QUEUE_NAME,
-        pop_=body,
+        pop_=population,
     ))
-    apply_selection(body)
+    logging.debug(body)  # TODO: remove
+
+    pairs = apply_selection(population)
+    for pair in pairs:
+        remaining_destinations = body.get("destinations")
+        send_message_to_queue(
+            destinations=remaining_destinations,
+            payload=pair
+        )
+
+
+def send_message_to_queue(destinations, payload):
+    # Define communication channel.
+    channel = connection.channel()
+
+    # This will create the exchange if it doesn't already exist.
+    logging.debug(destinations)  # TODO: remove logs
+    next_recipient = destinations.pop(index=0)
+    logging.debug(destinations)
+
+    channel.exchange_declare(exchange="", routing_key=next_recipient, durable=True)
+
+    # Send message to given recipient.
+    channel.basic_publish(
+        exchange="",
+        routing_key=next_recipient,
+        body=json.dumps({
+            "destinations": destinations,
+            "payload": payload
+        }),
+        # Delivery mode 2 makes the broker save the message to disk.
+        # This will ensure that the message be restored on reboot even
+        # if RabbitMQ crashes before having forwarded the message.
+        properties=pika.BasicProperties(
+            delivery_mode=2,
+        ),
+    )
 
 
 class RabbitMessageQueue(MessageHandler):
     def __init__(self):
-        # Establish connection to rabbitMQ.
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host="rabbitMQ",
-            credentials=pika.PlainCredentials("rabbit", "MQ")
-        ))
-        self.channel = self.connection.channel()
-
-    def receive_message(self, action_on_receive):
-        # Create queue for selection.
-        self.channel.queue_declare(queue=QUEUE_NAME, durable=True)
-
-        # Listen to selection queue.
-        self.__listen_to_queue(action_on_receive)
-
-        # Close connection when finished. TODO: check if prematurely closing connection
-        self.connection.close()
-
-    def send_message(self):
         pass
 
-    def __listen_to_queue(self, callback):
+    def receive_messages(self):
+        # Define communication channel.
+        channel = connection.channel()
+
+        # Create queue for selection.
+        channel.queue_declare(queue=QUEUE_NAME, durable=True)
+
         # Actively listen for messages in queue and perform callback on receive.
-        self.channel.basic_consume(
+        channel.basic_consume(
             queue=QUEUE_NAME,
-            on_message_callback=callback,
+            on_message_callback=receive_selection_callback,
             auto_ack=True
         )
-        logging.debug("Waiting for selection requests.")
-        self.channel.start_consuming()
+        logging.debug("rMQ:{queue_}: Waiting for selection requests.".format(
+            queue_=QUEUE_NAME
+        ))
+        channel.start_consuming()
+
+        # Close connection when finished. TODO: check if prematurely closing connection
+        connection.close()
+
+    def send_message(self, pair, remaining_destinations):
+        send_message_to_queue(remaining_destinations, pair)

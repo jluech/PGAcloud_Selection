@@ -7,9 +7,10 @@ class MessageHandler(ABC):
         pass
 
     @abstractmethod
-    def receive_message(self, action_on_receive):
+    def receive_messages(self):
         pass
 
     @abstractmethod
-    def send_message(self):
+    def send_message(self, payload, remaining_destinations):
+        # remaining_destinations is a list of strings with remaining recipients, in order of reception
         pass
