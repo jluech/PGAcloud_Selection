@@ -30,8 +30,7 @@ def get_message_handler():
 
 def get_selector():
     if SELECTOR == Selectors.RouletteWheel:
-        selector = RouletteWheelSelection()
-        raise Exception("RouletteWheelSelection not implemented yet!")
+        return RouletteWheelSelection()
     elif SELECTOR == Selectors.Tournament:
         selector = TournamentSelection()
         raise Exception("TournamentSelection not implemented yet!")
