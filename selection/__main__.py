@@ -9,6 +9,7 @@ SELECTOR = Selectors.RouletteWheel
 
 
 def apply_selection(population):
+    # Applies the chosen selection operator on the population and returns a list of pairs [{p1: x, p2: y}]
     logging.debug("Performing selection on population: {pop_}".format(
         pop_=population
     ))
