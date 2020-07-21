@@ -8,12 +8,6 @@ from selection.selection import apply_selection
 
 QUEUE_NAME = "selection"
 
-# Establish connection to rabbitMQ.
-connection = pika.BlockingConnection(pika.ConnectionParameters(
-    host="rabbitMQ",
-    credentials=pika.PlainCredentials("rabbit", "MQ")
-))
-
 
 def receive_selection_callback(ch, method, properties, body):
     population = body.get("payload")
@@ -27,21 +21,20 @@ def receive_selection_callback(ch, method, properties, body):
     for pair in pairs:
         remaining_destinations = body.get("destinations")
         send_message_to_queue(
+            channel=ch,
             destinations=remaining_destinations,
             payload=pair
         )
 
 
-def send_message_to_queue(destinations, payload):
-    # Define communication channel.
-    channel = connection.channel()
-
+def send_message_to_queue(channel, destinations, payload):
     # This will create the exchange if it doesn't already exist.
     logging.debug(destinations)  # TODO: remove logs
     next_recipient = destinations.pop(index=0)
     logging.debug(destinations)
 
-    channel.exchange_declare(exchange="", routing_key=next_recipient, durable=True)
+    # Route the message to the next queue in the model.
+    channel.exchange_declare(exchange="", routing_key=next_recipient, auto_delete=True, durable=True)
 
     # Send message to given recipient.
     channel.basic_publish(
@@ -62,14 +55,18 @@ def send_message_to_queue(destinations, payload):
 
 class RabbitMessageQueue(MessageHandler):
     def __init__(self):
-        pass
+        # Establish connection to rabbitMQ.
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(
+            host="rabbitMQ",
+            # credentials=pika.PlainCredentials("rabbit", "MQ")
+        ))
 
     def receive_messages(self):
         # Define communication channel.
-        channel = connection.channel()
+        channel = self.connection.channel()
 
         # Create queue for selection.
-        channel.queue_declare(queue=QUEUE_NAME, durable=True)
+        channel.queue_declare(queue=QUEUE_NAME, auto_delete=True, durable=True)
 
         # Actively listen for messages in queue and perform callback on receive.
         channel.basic_consume(
@@ -83,7 +80,13 @@ class RabbitMessageQueue(MessageHandler):
         channel.start_consuming()
 
         # Close connection when finished. TODO: check if prematurely closing connection
-        connection.close()
+        self.connection.close()
 
     def send_message(self, pair, remaining_destinations):
-        send_message_to_queue(remaining_destinations, pair)
+        # Define communication channel.
+        channel = self.connection.channel()
+        send_message_to_queue(
+            channel=channel,
+            destinations=remaining_destinations,
+            payload=pair
+        )
