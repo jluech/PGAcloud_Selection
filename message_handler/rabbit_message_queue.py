@@ -9,7 +9,7 @@ from selection.selection import apply_selection
 QUEUE_NAME = "selection"
 
 
-def receive_selection_callback(ch, method, properties, body):
+def receive_selection_callback(channel, method, properties, body):
     population = body.get("payload")
     logging.debug("rMQ:{queue_}: Received selection request for population: {pop_}".format(
         queue_=QUEUE_NAME,
@@ -21,7 +21,7 @@ def receive_selection_callback(ch, method, properties, body):
     for pair in pairs:
         remaining_destinations = body.get("destinations")
         send_message_to_queue(
-            channel=ch,
+            channel=channel,
             destinations=remaining_destinations,
             payload=pair
         )
@@ -80,6 +80,7 @@ class RabbitMessageQueue(MessageHandler):
         channel.start_consuming()
 
         # Close connection when finished. TODO: check if prematurely closing connection
+        logging.debug("rMQ: CLOSING CONNECTION")
         self.connection.close()
 
     def send_message(self, pair, remaining_destinations):
