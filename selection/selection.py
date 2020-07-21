@@ -14,14 +14,14 @@ def apply_selection(population):
 
 
 def get_selector():
-    __selector = forward_selector()
-    if __selector == Selectors.RouletteWheel:
+    selector = forward_selector()
+    if selector == Selectors.RouletteWheel:
         return RouletteWheelSelection()
-    elif __selector == Selectors.Tournament:
-        selector = TournamentSelection()
+    elif selector == Selectors.Tournament:
+        __selector = TournamentSelection()
         raise Exception("TournamentSelection not implemented yet!")
-    elif __selector == Selectors.Rank:
-        selector = RankSelection()
+    elif selector == Selectors.Rank:
+        __selector = RankSelection()
         raise Exception("RankSelection not implemented yet!")
     else:
         raise Exception("No valid Selector defined!")
