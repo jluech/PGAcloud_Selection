@@ -4,7 +4,7 @@ import logging
 import pika
 
 from message_handler.message_handler import MessageHandler
-from selection.__main__ import apply_selection
+from selection.selection import apply_selection
 
 QUEUE_NAME = "selection"
 
