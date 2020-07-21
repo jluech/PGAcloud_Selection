@@ -1,20 +1,8 @@
-import logging
-
 from message_handler.rabbit_message_queue import RabbitMessageQueue
-from selection.selectors import RouletteWheelSelection, TournamentSelection, RankSelection
-from utilities.utils import MessageHandlers, Selectors
+from utilities.utils import MessageHandlers, Selectors, __set_selector
 
-MESSAGE_BROKER = MessageHandlers.RabbitMQ
+MESSAGE_HANDLER = MessageHandlers.RabbitMQ
 SELECTOR = Selectors.RouletteWheel
-
-
-def apply_selection(population):
-    # Applies the chosen selection operator on the population and returns a list of pairs [{p1: x, p2: y}]
-    logging.debug("Performing selection on population: {pop_}".format(
-        pop_=population
-    ))
-    selector = get_selector()
-    return selector.perform_selection(population)
 
 
 def listen_for_selection():
@@ -23,24 +11,12 @@ def listen_for_selection():
 
 
 def get_message_handler():
-    if MESSAGE_BROKER == MessageHandlers.RabbitMQ:
+    if MESSAGE_HANDLER == MessageHandlers.RabbitMQ:
         return RabbitMessageQueue()
     else:
         raise Exception("No valid MessageHandler defined!")
 
 
-def get_selector():
-    if SELECTOR == Selectors.RouletteWheel:
-        return RouletteWheelSelection()
-    elif SELECTOR == Selectors.Tournament:
-        selector = TournamentSelection()
-        raise Exception("TournamentSelection not implemented yet!")
-    elif SELECTOR == Selectors.Rank:
-        selector = RankSelection()
-        raise Exception("RankSelection not implemented yet!")
-    else:
-        raise Exception("No valid Selector defined!")
-
-
 if __name__ == "__main__":
+    __set_selector(SELECTOR)
     listen_for_selection()
