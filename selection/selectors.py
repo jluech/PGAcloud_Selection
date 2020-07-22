@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 class AbstractSelection(ABC):
     @ abstractmethod
     def perform_selection(self, population):
-        # Perform the selection on the population, a list of individuals in the form of a dictionary.
-        # Returns a list of Pair
+        # Perform the selection on the population, a list of Individual's.
+        # Returns a list of Pair's.
         pass
 
 
@@ -19,7 +19,7 @@ class RouletteWheelSelection(AbstractSelection):
 
         fitness_sum = 0
         for individual in population:
-            fitness_sum += individual.get("fitness")
+            fitness_sum += individual.fitness
 
         for i in range(iterations):
             parent1 = self.__spin_the_wheel(population, fitness_sum)
@@ -37,7 +37,7 @@ class RouletteWheelSelection(AbstractSelection):
             if partial_fitness_sum >= wheel_spin:  # consider fitness boundaries can also be selected
                 break
             selected = individual
-            partial_fitness_sum += individual.get("fitness")
+            partial_fitness_sum += individual.fitness
         return selected
 
 
