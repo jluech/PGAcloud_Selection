@@ -11,7 +11,7 @@ QUEUE_NAME = "selection"
 
 def receive_selection_callback(channel, method, properties, body):
     population = body.get("payload")
-    logging.debug("rMQ:{queue_}: Received selection request for population: {pop_}".format(
+    logging.info("rMQ:{queue_}: Received selection request for population: {pop_}".format(
         queue_=QUEUE_NAME,
         pop_=population,
     ))
@@ -37,6 +37,10 @@ def send_message_to_queue(channel, destinations, payload):
     channel.exchange_declare(exchange="", routing_key=next_recipient, auto_delete=True, durable=True)
 
     # Send message to given recipient.
+    logging.info("rMQ: Sending '{body_}' to destinations {dest_}.".format(
+        body_=payload,
+        dest_=destinations,
+    ))
     channel.basic_publish(
         exchange="",
         routing_key=next_recipient,
@@ -74,13 +78,13 @@ class RabbitMessageQueue(MessageHandler):
             on_message_callback=receive_selection_callback,
             auto_ack=True
         )
-        logging.debug("rMQ:{queue_}: Waiting for selection requests.".format(
+        logging.info("rMQ:{queue_}: Waiting for selection requests.".format(
             queue_=QUEUE_NAME
         ))
         channel.start_consuming()
 
         # Close connection when finished. TODO: check if prematurely closing connection
-        logging.debug("rMQ: CLOSING CONNECTION")
+        logging.info("rMQ: CLOSING CONNECTION")
         self.connection.close()
 
     def send_message(self, pair, remaining_destinations):
