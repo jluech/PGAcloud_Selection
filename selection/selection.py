@@ -1,7 +1,7 @@
 import logging
 
-from selection.selectors import RouletteWheelSelection, TournamentSelection, RankSelection
-from utilities.utils import Selectors, forward_selector
+from selection.selectors import Selectors, RouletteWheelSelection, TournamentSelection, RankSelection
+from utilities.utils import forward_selector
 
 
 def apply_selection(population):

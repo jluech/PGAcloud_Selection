@@ -1,6 +1,13 @@
 import math
 import random
 from abc import ABC, abstractmethod
+from enum import Enum
+
+
+class Selectors(Enum):
+    RouletteWheel = "roulette",
+    Tournament = "tournament",
+    Rank = "rank",
 
 
 class AbstractSelection(ABC):

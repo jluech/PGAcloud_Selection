@@ -1,22 +1,11 @@
 import logging
 import os
-from enum import Enum
 from re import match
 
 import yaml
 
 __SELECTOR = None
 __PGA_ID = None
-
-
-class MessageHandlers(Enum):
-    RabbitMQ = "rabbitMQ",
-
-
-class Selectors(Enum):
-    RouletteWheel = "roulette",
-    Tournament = "tournament",
-    Rank = "rank",
 
 
 def parse_yaml(yaml_file_path):
