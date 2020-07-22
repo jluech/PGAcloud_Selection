@@ -54,11 +54,11 @@ def send_message_to_queue(channel, destinations, payload):
 
 
 class RabbitMessageQueue(MessageHandler):
-    def __init__(self):
+    def __init__(self, pga_id):
         # Establish connection to rabbitMQ.
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host="rabbitMQ",
-            # credentials=pika.PlainCredentials("rabbit", "MQ")
+            host="rabbitMQ--{id_}".format(id_=pga_id),
+            socket_timeout=30,
         ))
 
     def receive_messages(self):
