@@ -5,9 +5,9 @@ from database_handler.redis_handler import RedisHandler
 from message_handler.handlers import MessageHandlers
 from message_handler.rabbit_message_queue import RabbitMessageQueue
 from selection.selectors import Selectors
-from utilities.utils import __set_selector, get_pga_id
+from utilities import utils
 
-logging.basicConfig(level=logging.DEBUG)  # TODO: remove and reduce to INFO
+logging.basicConfig(level=logging.INFO)
 
 DATABASE_HANDLER = DatabaseHandlers.Redis
 MESSAGE_HANDLER = MessageHandlers.RabbitMQ
@@ -15,7 +15,7 @@ SELECTOR = Selectors.RouletteWheel
 
 
 def listen_for_selection():
-    pga_id = get_pga_id()
+    pga_id = utils.get_pga_id()
     database_handler = get_database_handler(pga_id)
 
     message_handler = get_message_handler(pga_id)
@@ -37,5 +37,5 @@ def get_message_handler(pga_id):
 
 
 if __name__ == "__main__":
-    __set_selector(SELECTOR)
+    utils.__set_selector(SELECTOR)
     listen_for_selection()
