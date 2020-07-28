@@ -39,8 +39,8 @@ class RouletteWheelSelection(AbstractSelection):
 
     @staticmethod
     def __spin_the_wheel(population, fitness_sum):
-        partial_fitness_sum = 0
-        wheel_spin = random.randint(0, fitness_sum)  # select individual at random
+        partial_fitness_sum = 0.0
+        wheel_spin = random.uniform(0, fitness_sum)  # select individual at random
         selected = population[0]  # select first individual if wheel_spin=0
         for individual in population:  # retrieve selected individual
             if partial_fitness_sum >= wheel_spin:  # consider fitness boundaries can also be selected
