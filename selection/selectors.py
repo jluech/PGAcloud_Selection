@@ -1,3 +1,4 @@
+import logging
 import math
 import random
 from abc import ABC, abstractmethod
@@ -31,7 +32,9 @@ class RouletteWheelSelection(AbstractSelection):
         for i in range(iterations):
             parent1 = self.__spin_the_wheel(population, fitness_sum)
             parent2 = self.__spin_the_wheel(population, fitness_sum)
-            parents.append([parent1, parent2])
+            selected_parents = [parent1, parent2]
+            parents.append(selected_parents)
+            logging.info("Selected parents: {sel_}.".format(sel_=selected_parents))
         return parents
 
     @staticmethod
