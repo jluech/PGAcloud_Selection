@@ -31,8 +31,7 @@ class RouletteWheelSelection(AbstractSelection):
         for i in range(iterations):
             parent1 = self.__spin_the_wheel(population, fitness_sum)
             parent2 = self.__spin_the_wheel(population, fitness_sum)
-            parents.append(Pair(parent1, parent2))
-
+            parents.append([parent1, parent2])
         return parents
 
     @staticmethod
