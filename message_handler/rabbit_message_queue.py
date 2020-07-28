@@ -73,7 +73,6 @@ class RabbitMessageQueue(MessageHandler):
         channel.basic_consume(
             queue=queue_name,
             on_message_callback=receive_selection_callback,
-            auto_ack=True
         )
         logging.info("rMQ:{queue_}: Waiting for selection requests.".format(
             queue_=queue_name
